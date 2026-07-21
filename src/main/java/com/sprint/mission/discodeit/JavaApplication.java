@@ -10,12 +10,13 @@ import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 import java.util.List;
+import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) {
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
-        MessageService messageService = new JCFMessageService();
+        MessageService messageService = new JCFMessageService(userService, channelService);
 
         System.out.println("=== 1. 생성(Create) 테스트 ===");
         // 유저 2명 생성
@@ -52,5 +53,20 @@ public class JavaApplication {
         // 전체 유저 목록 조회
         List<User> users = userService.readAll();
         System.out.println("남은 유저 목록 = " + users);
+
+        System.out.println("\n=== 5. 예외 처리(검증) 테스트 ===");
+        try {
+            // 유령 회원 ID 생성 후 메세지 생성 시도
+            messageService.create(UUID.randomUUID(), channel1.getId(), "유령 유저의 메시지");
+        } catch (IllegalArgumentException e) {
+            System.out.println("예외 발생 성공 (방어 완료!): " + e.getMessage());
+        }
+
+        try {
+            // 유령 채널 ID 생성 후 메세지 생성 시도
+            messageService.create(user1.getId(), UUID.randomUUID(), "유령 유저의 메시지");
+        } catch (IllegalArgumentException e) {
+            System.out.println("예외 발생 성공 (방어 완료!): " + e.getMessage());
+        }
     }
 }
