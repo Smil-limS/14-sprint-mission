@@ -41,3 +41,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### 무시할 디렉토리 ###
+**/practice/
+.idea/
