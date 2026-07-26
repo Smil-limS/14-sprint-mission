@@ -21,6 +21,13 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message create(UUID senderId, UUID channelId, String content) {
+        if (userService.read(senderId) == null) {
+            throw new IllegalArgumentException("존재하지 않는 유저입니다. ID: " + senderId);
+        }
+
+        if (channelService.read(channelId) == null) {
+            throw new IllegalArgumentException("존재하지 않는 채널입니다. ID: " + channelId);
+        }
         Message message = Message.create(senderId, channelId, content);
         return messageRepository.save(message);
     }
