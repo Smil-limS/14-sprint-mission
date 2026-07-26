@@ -15,8 +15,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class FileChannelRepository extends AbstractFileRepository<Channel> implements ChannelRepository {
+    private static final String FILE_PATH = "channels.dat";
 
     public FileChannelRepository() {
-        super("channels.dat");
+        super(FILE_PATH);
     }
 }

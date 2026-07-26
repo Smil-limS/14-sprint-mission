@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class FileMessageRepository extends AbstractFileRepository<Message> implements MessageRepository {
+    private static final String FILE_PATH = "messages.dat";
+
     public FileMessageRepository() {
-        super("messages.dat");
+        super(FILE_PATH);
     }
 }

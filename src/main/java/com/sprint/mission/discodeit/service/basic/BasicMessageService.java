@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 public class BasicMessageService implements MessageService {
+    private static final String ERROR_USER_NOT_FOUND = "존재하지 않는 유저입니다. ID: ";
+    private static final String ERROR_CHANNEL_NOT_FOUND = "존재하지 않는 채널입니다. ID: ";
+
     private final UserService userService;
     private final ChannelService channelService;
     private final MessageRepository messageRepository;
@@ -22,11 +25,11 @@ public class BasicMessageService implements MessageService {
     @Override
     public Message create(UUID senderId, UUID channelId, String content) {
         if (userService.read(senderId) == null) {
-            throw new IllegalArgumentException("존재하지 않는 유저입니다. ID: " + senderId);
+            throw new IllegalArgumentException(ERROR_USER_NOT_FOUND + senderId);
         }
 
         if (channelService.read(channelId) == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다. ID: " + channelId);
+            throw new IllegalArgumentException(ERROR_CHANNEL_NOT_FOUND + channelId);
         }
         Message message = Message.create(senderId, channelId, content);
         return messageRepository.save(message);
