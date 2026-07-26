@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,5 +32,10 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public void deleteById(UUID id) {
         data.remove(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        data.clear();
     }
 }
