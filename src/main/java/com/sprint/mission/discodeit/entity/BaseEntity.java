@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public abstract class BaseEntity {
+public abstract class BaseEntity implements Serializable {
     final UUID id;
     final long createdAt;
     long updatedAt;
