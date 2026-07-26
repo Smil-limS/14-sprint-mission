@@ -19,18 +19,18 @@ import java.util.List;
 import java.util.UUID;
 
 public class JavaApplication {
-//    static User setupUser(UserService userService) {
-//        return userService.create("woody", "woody@codeit.com", "woody1234");
-//    }
-//
-//    static Channel setupChannel(ChannelService channelService) {
-//        return channelService.create(UUID.randomUUID(), "채널1");
-//    }
-//
-//    static void messageCreateTest(User user, Channel channel, MessageService messageService) {
-//        Message message = messageService.create(user.getId(), channel.getId(), "채널1 공지");
-//        System.out.println("메시지 생성: " + message);
-//    }
+    static User setupUser(UserService userService) {
+        return userService.create("woody", "woody@codeit.com", "woody1234");
+    }
+
+    static Channel setupChannel(ChannelService channelService) {
+        return channelService.create(UUID.randomUUID(), "채널1");
+    }
+
+    static void messageCreateTest(User user, Channel channel, MessageService messageService) {
+        Message message = messageService.create(user.getId(), channel.getId(), "채널1 공지");
+        System.out.println("메시지 생성: " + message);
+    }
 
     public static void main(String[] args) {
         // 레포지토리 객체 생성
@@ -38,6 +38,10 @@ public class JavaApplication {
         ChannelRepository channelRepository = new FileChannelRepository();
         MessageRepository messageRepository = new FileMessageRepository();
 
+        // 실행할 때마다 데이터가 추가되는 문제를 해결하기 위해 만듦.
+        userRepository.deleteAll();
+        channelRepository.deleteAll();
+        messageRepository.deleteAll();
         // 서비스 주입
         UserService userService = new BasicUserService(userRepository);
         ChannelService channelService = new BasicChannelService(channelRepository);
@@ -48,15 +52,17 @@ public class JavaApplication {
 //        ChannelService channelService = new JCFChannelService();
 //        MessageService messageService = new JCFMessageService(userService, channelService);
 
-        // sprint 2-2 테스트
-//        System.out.println("=== 과제 템플릿 기본 테스트 시작 ===");
-//        User user = setupUser(userService);
-//        Channel channel = setupChannel(channelService);
-//        messageCreateTest(user, channel, messageService);
-//        System.out.println("=== 과제 템플릿 기본 테스트 완료 ===\n");
+//         sprint 2-2 테스트
+        System.out.println("\n2-2 스프린트 미션 결과");
+        System.out.println("=== 과제 템플릿 기본 테스트 시작 ===");
+        User user = setupUser(userService);
+        Channel channel = setupChannel(channelService);
+        messageCreateTest(user, channel, messageService);
+        System.out.println("=== 과제 템플릿 기본 테스트 완료 ===\n");
 
 
 //        // sprint 2-1 테스트
+        System.out.println("\n2-1 스프린트 미션 결과");
         System.out.println("=== 생성(create) 테스트 ===");
         User user1 = userService.create("가나다", "ga@codeit.com", "나다");
         User user2 = userService.create("라마바", "la@codeit.com", "마바");

@@ -69,4 +69,12 @@ public abstract class AbstractFileRepository<T extends BaseEntity> implements Fi
         data.remove(id);
         saveData(data);
     }
+
+    @Override
+    public void deleteAll(){
+        File file = new File(filePath);
+        if (file.exists()){
+            file.delete();
+        }
+    }
 }

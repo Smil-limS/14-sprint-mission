@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import java.util.List;
 import java.util.UUID;
 
-public interface MessageRepository {
+public interface MessageRepository extends FileRepository<Message>{
     Message save(Message message);
     Message findById(UUID id);
     List<Message> findAll();
