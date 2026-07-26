@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
 
-    private static final String FILE_PATH = "channels.dat";
+    private static final String FILE_PATH = "channels.ser";
 
     private Map<UUID, Channel> loadData(){
         File file = new File(FILE_PATH);

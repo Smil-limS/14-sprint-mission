@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class FileMessageService implements MessageService {
 
-    private static final String FILE_PATH = "messages.dat";
+    private static final String FILE_PATH = "messages.ser";
 
     private Map<UUID, Message> loadData(){
         File file = new File(FILE_PATH);

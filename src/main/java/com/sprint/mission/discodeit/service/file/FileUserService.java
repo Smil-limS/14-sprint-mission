@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class FileUserService implements UserService {
 
-    private static final String FILE_PATH = "users.dat";
+    private static final String FILE_PATH = "users.ser";
 
     private Map<UUID, User> loadData(){
         File file = new File(FILE_PATH);

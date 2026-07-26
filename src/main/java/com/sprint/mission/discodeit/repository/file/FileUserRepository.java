@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 
 public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
-    private static final String FILE_PATH = "users.dat";
+    private static final String FILE_PATH = "users.ser";
 
     public FileUserRepository() {
         super(FILE_PATH);
