@@ -33,10 +33,15 @@ public class JavaApplication {
     }
 
     public static void main(String[] args) {
-        // 레포지토리 객체 생성
-        UserRepository userRepository = new FileUserRepository();
-        ChannelRepository channelRepository = new FileChannelRepository();
-        MessageRepository messageRepository = new FileMessageRepository();
+        // 레포지토리 객체 생성(싱글톤 패턴을 사용하기 위해 주석 처리)
+//        UserRepository userRepository = new FileUserRepository();
+//        ChannelRepository channelRepository = new FileChannelRepository();
+//        MessageRepository messageRepository = new FileMessageRepository();
+
+        // 싱글톤 패턴 사용.
+        UserRepository userRepository = FileUserRepository.getInstance();
+        ChannelRepository channelRepository = FileChannelRepository.getInstance();
+        MessageRepository messageRepository = FileMessageRepository.getInstance();
 
         // 실행할 때마다 데이터가 추가되는 문제를 해결하기 위해 만듦.
         userRepository.deleteAll();

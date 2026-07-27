@@ -6,8 +6,17 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
     private static final String FILE_PATH = "users.ser";
 
-    public FileUserRepository() {
+    private static FileUserRepository instance;
+
+    private FileUserRepository() {
         super(FILE_PATH);
+    }
+
+    public static FileUserRepository getInstance(){
+        if (instance == null){
+            instance = new FileUserRepository();
+        }
+        return instance;
     }
 }
 
