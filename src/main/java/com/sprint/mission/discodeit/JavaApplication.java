@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit;
 
+import static com.sprint.mission.discodeit.service.basic.BasicUserService.ERROR_USER_NOT_FOUND;
+
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
@@ -82,11 +84,13 @@ public class JavaApplication {
         System.out.println("=== 수정(update) 테스트 ===");
         userService.update(user2.getId(), "랑망방", "rang@codeit.com", "망방");
 
-        User update1 = userService.read(user2.getId());
+        User update1 = userService.read(user2.getId())
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_USER_NOT_FOUND));
         System.out.println("update1 = " + update1);
 
         System.out.println("=== 조회(read) 테스트 ===");
-        User read1 = userService.read(user1.getId());
+        User read1 = userService.read(user1.getId())
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_USER_NOT_FOUND));
         System.out.println("read1 = " + read1);
 
         System.out.println("=== 삭제(delete) 테스트 ===");
