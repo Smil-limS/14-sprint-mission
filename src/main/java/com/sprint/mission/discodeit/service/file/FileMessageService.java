@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
+import static com.sprint.mission.discodeit.service.basic.BasicMessageService.ERROR_MESSAGE_NOT_FOUND;
+
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.io.File;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileMessageService implements MessageService {
@@ -49,9 +52,9 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public Message read(UUID id) {
+    public Optional<Message> read(UUID id) {
         Map<UUID, Message> data = loadData();
-        return data.get(id);
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
@@ -63,11 +66,10 @@ public class FileMessageService implements MessageService {
     @Override
     public void update(UUID id, String content) {
         Map<UUID, Message> data = loadData();
-        Message message = data.get(id);
-        if (message != null){
+        Message message = Optional.ofNullable(data.get(id))
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_MESSAGE_NOT_FOUND + id));
             message.changeContent(content);
             saveData(data);
-        }
     }
 
     @Override

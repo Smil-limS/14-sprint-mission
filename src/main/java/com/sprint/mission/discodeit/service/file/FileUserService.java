@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
+import static com.sprint.mission.discodeit.service.basic.BasicUserService.ERROR_USER_NOT_FOUND;
+
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 import java.io.File;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileUserService implements UserService {
@@ -49,9 +52,9 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public User read(UUID id) {
+    public Optional<User> read(UUID id) {
         Map<UUID, User> data = loadData();
-        return data.get(id);
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
@@ -63,13 +66,13 @@ public class FileUserService implements UserService {
     @Override
     public void update(UUID id, String name, String email, String nickname) {
         Map<UUID, User> data = loadData();
-        User user = data.get(id);
-        if (user != null){
+        User user = Optional.ofNullable(data.get(id))
+                        .orElseThrow(() -> new IllegalArgumentException(ERROR_USER_NOT_FOUND + id));
+
             user.changeName(name);
             user.changeEmail(email);
             user.changeNickname(nickname);
             saveData(data);
-        }
     }
 
     @Override

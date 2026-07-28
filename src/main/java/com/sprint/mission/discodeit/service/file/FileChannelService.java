@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
+import static com.sprint.mission.discodeit.service.basic.BasicChannelService.ERROR_CHANNEL_NOT_FOUND;
+
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.io.File;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
@@ -49,9 +52,9 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel read(UUID id) {
+    public Optional<Channel> read(UUID id) {
         Map<UUID, Channel> data = loadData();
-        return data.get(id);
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
@@ -63,11 +66,10 @@ public class FileChannelService implements ChannelService {
     @Override
     public void update(UUID id, String name) {
         Map<UUID, Channel> data = loadData();
-        Channel channel = data.get(id);
-        if (channel != null){
+        Channel channel = Optional.ofNullable(data.get(id))
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_CHANNEL_NOT_FOUND + id));
             channel.changeName(name);
             saveData(data);
-        }
     }
 
     @Override
