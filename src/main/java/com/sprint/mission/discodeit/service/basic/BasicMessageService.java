@@ -1,16 +1,19 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import static com.sprint.mission.discodeit.service.basic.BasicChannelService.ERROR_CHANNEL_NOT_FOUND;
+import static com.sprint.mission.discodeit.service.basic.BasicUserService.ERROR_USER_NOT_FOUND;
+
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class BasicMessageService implements MessageService {
-    private static final String ERROR_USER_NOT_FOUND = "존재하지 않는 유저입니다. ID: ";
-    private static final String ERROR_CHANNEL_NOT_FOUND = "존재하지 않는 채널입니다. ID: ";
+    private static final String ERROR_MESSAGE_NOT_FOUND = "존재하지 않는 메시지입니다. ID: ";
 
     private final UserService userService;
     private final ChannelService channelService;
@@ -24,19 +27,18 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message create(UUID senderId, UUID channelId, String content) {
-        if (userService.read(senderId) == null) {
-            throw new IllegalArgumentException(ERROR_USER_NOT_FOUND + senderId);
-        }
+        userService.read(senderId)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_USER_NOT_FOUND + senderId));
 
-        if (channelService.read(channelId) == null) {
-            throw new IllegalArgumentException(ERROR_CHANNEL_NOT_FOUND + channelId);
-        }
+        channelService.read(channelId)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_CHANNEL_NOT_FOUND + channelId));
+
         Message message = Message.create(senderId, channelId, content);
         return messageRepository.save(message);
     }
 
     @Override
-    public Message read(UUID id) {
+    public Optional<Message> read(UUID id) {
         return messageRepository.findById(id);
     }
 
@@ -47,11 +49,10 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public void update(UUID id, String content) {
-        Message message = messageRepository.findById(id);
-        if (message != null){
+        Message message = messageRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException(ERROR_MESSAGE_NOT_FOUND + id));
             message.changeContent(content);
             messageRepository.save(message);
-        }
     }
 
     @Override
