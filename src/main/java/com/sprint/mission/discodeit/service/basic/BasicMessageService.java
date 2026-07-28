@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class BasicMessageService implements MessageService {
-    private static final String ERROR_MESSAGE_NOT_FOUND = "존재하지 않는 메시지입니다. ID: ";
+    public static final String ERROR_MESSAGE_NOT_FOUND = "존재하지 않는 메시지입니다. ID: ";
 
     private final UserService userService;
     private final ChannelService channelService;
