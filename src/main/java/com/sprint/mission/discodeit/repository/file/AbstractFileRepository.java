@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AbstractFileRepository<T extends BaseEntity> implements FileRepository<T> {
@@ -52,9 +53,9 @@ public abstract class AbstractFileRepository<T extends BaseEntity> implements Fi
     }
 
     @Override
-    public T findById(UUID id) {
+    public Optional<T> findById(UUID id) {
         Map<UUID, T> data = loadData();
-        return data.get(id); // 데이터가 없으면 null 반환
+        return Optional.ofNullable(data.get(id)); // 데이터가 없으면 null 반환
     }
 
     @Override
