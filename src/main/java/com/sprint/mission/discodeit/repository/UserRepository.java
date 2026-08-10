@@ -16,4 +16,7 @@ public interface UserRepository {
     // UserService 고도화
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+
+    // AuthService 구현을 위한 메서드
+    Optional<User> findByUsernameAndPassword(String username, String password);
 }
