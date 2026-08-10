@@ -17,7 +17,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import org.springframework.stereotype.Repository;
 
+
+@Repository
 public class FileUserStatusRepository implements UserStatusRepository {
 
     private static final String FILE_PATH = "user_status.ser";

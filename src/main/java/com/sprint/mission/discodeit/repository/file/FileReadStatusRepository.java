@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class FileReadStatusRepository implements ReadStatusRepository {
     private static final String FILE_PATH = "read_status.ser";
     private Map<UUID, ReadStatus> data = new HashMap<>();
