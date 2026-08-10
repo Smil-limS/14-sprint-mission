@@ -12,9 +12,10 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
-
+@Primary
 @Repository
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class FileUserRepository implements UserRepository {
