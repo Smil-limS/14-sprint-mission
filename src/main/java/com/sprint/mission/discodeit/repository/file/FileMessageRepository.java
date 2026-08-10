@@ -102,4 +102,21 @@ public class FileMessageRepository implements MessageRepository {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public List<Message> findByChannelId(UUID channelId) {
+        // 이미 파일들을 다 읽어오는 findAll()을 활용하여 필터링합니다.
+        return findAll().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .toList();
+    }
+
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        List<Message> messagesToDelete = findByChannelId(channelId);
+
+        for (Message message : messagesToDelete) {
+            deleteById(message.getId());
+        }
+    }
 }
