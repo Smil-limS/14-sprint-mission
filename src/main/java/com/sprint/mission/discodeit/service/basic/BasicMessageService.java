@@ -1,62 +1,65 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import static com.sprint.mission.discodeit.service.basic.BasicChannelService.ERROR_CHANNEL_NOT_FOUND;
-import static com.sprint.mission.discodeit.service.basic.BasicUserService.ERROR_USER_NOT_FOUND;
-
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
+
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.stereotype.Service;
 
+@Service
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
-    public static final String ERROR_MESSAGE_NOT_FOUND = "존재하지 않는 메시지입니다. ID: ";
+    MessageRepository messageRepository;
+    ChannelRepository channelRepository;
+    UserRepository userRepository;
 
-    private final UserService userService;
-    private final ChannelService channelService;
-    private final MessageRepository messageRepository;
-
-    public BasicMessageService(MessageRepository messageRepository, UserService userService, ChannelService channelService) {
-        this.messageRepository = messageRepository;
-        this.userService = userService;
-        this.channelService = channelService;
-    }
 
     @Override
-    public Message create(UUID senderId, UUID channelId, String content) {
-        userService.read(senderId)
-                .orElseThrow(() -> new IllegalArgumentException(ERROR_USER_NOT_FOUND + senderId));
+    public Message create(String content, UUID channelId, UUID authorId) {
+        if (!channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("Channel not found with id " + channelId);
+        }
+        if (!userRepository.existsById(authorId)) {
+            throw new NoSuchElementException("Author not found with id " + authorId);
+        }
 
-        channelService.read(channelId)
-                .orElseThrow(() -> new IllegalArgumentException(ERROR_CHANNEL_NOT_FOUND + channelId));
-
-        Message message = Message.create(senderId, channelId, content);
+        Message message = new Message(content, channelId, authorId);
         return messageRepository.save(message);
     }
 
     @Override
-    public Optional<Message> read(UUID id) {
-        return messageRepository.findById(id);
+    public Message find(UUID messageId) {
+        return messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
     }
 
     @Override
-    public List<Message> readAll() {
+    public List<Message> findAll() {
         return messageRepository.findAll();
     }
 
     @Override
-    public void update(UUID id, String content) {
-        Message message = messageRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException(ERROR_MESSAGE_NOT_FOUND + id));
-            message.changeContent(content);
-            messageRepository.save(message);
+    public Message update(UUID messageId, String newContent) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+        message.update(newContent);
+        return messageRepository.save(message);
     }
 
     @Override
-    public void delete(UUID id) {
-        messageRepository.deleteById(id);
+    public void delete(UUID messageId) {
+        if (!messageRepository.existsById(messageId)) {
+            throw new NoSuchElementException("Message with id " + messageId + " not found");
+        }
+        messageRepository.deleteById(messageId);
     }
 }
