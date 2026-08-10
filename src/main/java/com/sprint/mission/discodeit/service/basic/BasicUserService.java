@@ -104,10 +104,24 @@ public class BasicUserService implements UserService {
                 .orElseThrow(() -> new NoSuchElementException("유저를 찾을 수 없습니다."));
 
         if (user.getProfileId() != null){
-            binaryContentRepository.deleteById(userId );
+            binaryContentRepository.deleteById(user.getProfileId());
         }
+
+        userStatusRepository.deleteByUserId(userId);
         userRepository.deleteById(userId);
     }
 
-    private UserResponse toResponse(User user, UserStatus userStatus) {}
+    private UserResponse toResponse(User user, UserStatus userStatus) {
+        boolean isOnline = (userStatus != null) && userStatus.isOnline();
+
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getProfileId(),
+                isOnline
+        );
+    }
 }
