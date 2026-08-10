@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import static com.sun.tools.jdeprscan.DeprDB.loadFromFile;
-
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.io.File;
@@ -14,11 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Repository;
 
 
