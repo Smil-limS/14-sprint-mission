@@ -4,7 +4,9 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 
 import java.util.*;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class JCFUserRepository implements UserRepository {
     private final Map<UUID, User> data;
 
