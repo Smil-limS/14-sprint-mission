@@ -1,10 +1,9 @@
-package com.sprint.mission.discodeit.repository.jcf;
+package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.Locked.Read;
 
 public interface ReadStatusRepository{
     ReadStatus save(ReadStatus readStatus);
