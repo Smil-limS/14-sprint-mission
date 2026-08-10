@@ -44,8 +44,7 @@ public class BasicUserService implements UserService {
             user.updateProfile(profileImage.getId());
         }
         userRepository.save(user);
-        UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new NoSuchElementException("유저 상태 정보를 찾을 수 없습니다."));
+        UserStatus userStatus = new UserStatus(user.getId());
         userStatusRepository.save(userStatus);
         return toResponse(user, userStatus);
     }
