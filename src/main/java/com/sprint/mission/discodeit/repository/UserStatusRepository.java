@@ -16,4 +16,7 @@ public interface UserStatusRepository {
     // UserService 고도화
     Optional<UserStatus> findByUserId(UUID userId);
     void deleteByUserId(UUID userId);
+
+    // userStatusService 고도화
+    boolean existsByUserId(UUID userId);
 }
