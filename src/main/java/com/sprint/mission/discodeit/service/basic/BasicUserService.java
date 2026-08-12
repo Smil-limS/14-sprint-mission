@@ -64,7 +64,7 @@ public class BasicUserService implements UserService {
         return userRepository.findAll().stream()
                 .map(user -> {
                     UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-                        .orElseThrow(() -> new NoSuchElementException("유저 정보를 찾을 수 없습니다."));
+                        .orElse(null);
                     return toResponse(user, userStatus);
                 })
                 .toList();
