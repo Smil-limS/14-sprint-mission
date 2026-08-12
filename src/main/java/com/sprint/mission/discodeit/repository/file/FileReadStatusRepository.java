@@ -2,95 +2,124 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileReadStatusRepository implements ReadStatusRepository {
-    private static final String FILE_PATH = "read_status.ser";
-    private Map<UUID, ReadStatus> data = new HashMap<>();
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
+
+    public FileReadStatusRepository() {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", ReadStatus.class.getSimpleName());
+        if (Files.notExists(DIRECTORY)) {
+            try {
+                Files.createDirectories(DIRECTORY);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private Path resolvePath(UUID id) {
+        return DIRECTORY.resolve(id + EXTENSION);
+    }
 
     @Override
     public ReadStatus save(ReadStatus readStatus) {
-        data.put(readStatus.getId(), readStatus);
-        saveToFile();
+        Path path = resolvePath(readStatus.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(readStatus);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return readStatus;
     }
 
     @Override
     public Optional<ReadStatus> findById(UUID id) {
-        return Optional.ofNullable(data.get(id));
+        ReadStatus readStatusNullable = null;
+        Path path = resolvePath(id);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                readStatusNullable = (ReadStatus) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.ofNullable(readStatusNullable);
     }
 
     @Override
     public List<ReadStatus> findAll() {
-        return new ArrayList<>(data.values());
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (ReadStatus) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean existsById(UUID id) {
-        return data.containsKey(id);
+        return Files.exists(resolvePath(id));
     }
 
     @Override
     public void deleteById(UUID id) {
-        data.remove(id);
-        saveToFile();
+        try {
+            Files.deleteIfExists(resolvePath(id));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<ReadStatus> findByChannelId(UUID channelId) {
-        return data.values().stream()
+        return findAll().stream()
                 .filter(readStatus -> readStatus.getChannelId().equals(channelId))
                 .toList();
     }
 
     @Override
     public List<ReadStatus> findByUserId(UUID userId) {
-        return data.values().stream()
+        return findAll().stream()
                 .filter(readStatus -> readStatus.getUserId().equals(userId))
                 .toList();
     }
 
     @Override
     public void deleteByChannelId(UUID channelId) {
-        boolean removed = data.values()
-                .removeIf(readStatus -> readStatus.getChannelId().equals(channelId));
-        if (removed){
-            saveToFile();
-        }
-    }
-
-    private void loadFromFile(){
-        File file = new File(FILE_PATH);
-        if (file.exists()){
-            try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))){
-                data = (Map<UUID, ReadStatus>) ois.readObject();
-            }catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private void saveToFile() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))){
-            oos.writeObject(data);
-        } catch (IOException e) {
-            e.printStackTrace();
+        // ⭐️ 해당 채널의 상태 목록을 찾아낸 뒤, 그 고유 ID로 개별 파일들을 삭제합니다.
+        List<ReadStatus> statusesToDelete = findByChannelId(channelId);
+        for (ReadStatus status : statusesToDelete) {
+            deleteById(status.getId());
         }
     }
 }
