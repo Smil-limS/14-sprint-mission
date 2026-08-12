@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.CustomException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -28,14 +30,14 @@ public class BasicReadStatusService implements ReadStatusService {
         UUID channelId = request.channelId();
 
         if (!userRepository.existsById(userId)) {
-            throw new NoSuchElementException("User with id " + userId + " does not exist");
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
         if (!channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException("Channel with id " + channelId + " does not exist");
+            throw new CustomException(ErrorCode.CHANNEL_NOT_FOUND);
         }
         if (readStatusRepository.findAllByUserId(userId).stream()
                 .anyMatch(readStatus -> readStatus.getChannelId().equals(channelId))) {
-            throw new IllegalArgumentException("ReadStatus with userId " + userId + " and channelId " + channelId + " already exists");
+            throw new CustomException(ErrorCode.DUPLICATE_READ_STATUS);
         }
 
         Instant lastReadAt = request.lastReadAt();
@@ -46,7 +48,7 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     public ReadStatus find(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
-                .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.READ_STATUS_NOT_FOUND));
     }
 
     @Override
@@ -59,7 +61,7 @@ public class BasicReadStatusService implements ReadStatusService {
     public ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest request) {
         Instant newLastReadAt = request.newLastReadAt();
         ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-                .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.READ_STATUS_NOT_FOUND));
         readStatus.update(newLastReadAt);
         return readStatusRepository.save(readStatus);
     }
@@ -67,7 +69,7 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     public void delete(UUID readStatusId) {
         if (!readStatusRepository.existsById(readStatusId)) {
-            throw new NoSuchElementException("ReadStatus with id " + readStatusId + " not found");
+            throw new CustomException(ErrorCode.READ_STATUS_NOT_FOUND);
         }
         readStatusRepository.deleteById(readStatusId);
     }
