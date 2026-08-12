@@ -14,11 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
-@Primary
 @Repository
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileUserStatusRepository implements UserStatusRepository {
 
     private static final String FILE_PATH = "user_status.ser";

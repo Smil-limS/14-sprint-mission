@@ -12,12 +12,13 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
-@Primary
 @Repository
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileUserRepository implements UserRepository {
     Path DIRECTORY;
     String EXTENSION = ".ser";
