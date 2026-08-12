@@ -83,7 +83,7 @@ public class BasicChannelService implements ChannelService {
                 .orElseThrow(() -> new NoSuchElementException("채널을 찾을 수 없습니다."));
 
         if (channel.getType() == ChannelType.PRIVATE){
-            throw new NoSuchElementException("PRIVATE 채널은 정보를 수정할 수 없습니다.");
+            throw new IllegalStateException("PRIVATE 채널은 정보를 수정할 수 없습니다.");
         }
 
         channel.update(request.newName(), request.newDescription());
@@ -97,7 +97,7 @@ public class BasicChannelService implements ChannelService {
             throw new NoSuchElementException("채널을 찾을 수 없습니다.");
         }
 
-        messageRepository.deleteById(channelId);
+        messageRepository.deleteByChannelId(channelId);
         readStatusRepository.deleteByChannelId(channelId);
 
         channelRepository.deleteById(channelId);

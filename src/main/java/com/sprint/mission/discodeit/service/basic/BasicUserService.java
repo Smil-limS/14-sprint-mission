@@ -32,7 +32,7 @@ public class BasicUserService implements UserService {
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
-        User user = new User(request.username(), request.email(), request.email());
+        User user = new User(request.username(), request.password(), request.email());
 
         if (request.profileImageBytes() != null){
             BinaryContent profileImage = new BinaryContent(
@@ -79,7 +79,7 @@ public class BasicUserService implements UserService {
 
         if (request.profileImageBytes() != null){
             if (user.getProfileId() != null) {
-                binaryContentRepository.deleteById(user.getId());
+                binaryContentRepository.deleteById(user.getProfileId());
             }
             BinaryContent newProfileImage = new BinaryContent(
                     request.profileImageBytes(),
