@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/files")
+@RequestMapping("/api/binaryContent")
 public class BinaryContentController {
     private final BinaryContentService binaryContentService;
 
-    @GetMapping("/{fileId}")
-    public ResponseEntity<BinaryContent> findOne(@RequestParam UUID fileId){
-        return ResponseEntity.ok(binaryContentService.find(fileId));
+    @GetMapping("find")
+    public ResponseEntity<BinaryContent> findOne(@RequestParam UUID binaryContentId){
+        return ResponseEntity.ok(binaryContentService.find(binaryContentId));
     }
 
     @GetMapping
