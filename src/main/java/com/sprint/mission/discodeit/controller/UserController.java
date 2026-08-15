@@ -38,21 +38,7 @@ public class UserController {
     public ResponseEntity<User> create(
             @ModelAttribute UserCreateRequest request,
             @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
-        Optional<BinaryContentCreateRequest> profileRequest = Optional.empty();
-
-        try {
-            // 전달받은 이미지 파일이 존재하면 변환합니다.
-            if (profileImage != null && !profileImage.isEmpty()) {
-                profileRequest = Optional.of(new BinaryContentCreateRequest(
-                        profileImage.getOriginalFilename(),
-                        profileImage.getContentType(),
-                        profileImage.getBytes()
-                ));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("이미지 처리 중 오류가 발생했습니다.", e);
-        }
-
+        Optional<BinaryContentCreateRequest> profileRequest = convertToBinaryRequest(profileImage);
         User user = userService.create(request, profileRequest);
         return ResponseEntity.ok(user);
     }
@@ -63,9 +49,12 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> update(@PathVariable UUID userId, @RequestBody UserUpdateRequest request){
-        User user = userService.update(userId, request, Optional.empty());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<User> update(@PathVariable UUID userId, @ModelAttribute UserUpdateRequest request,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage){
+
+        Optional<BinaryContentCreateRequest> profileRequest = convertToBinaryRequest(profileImage);
+        User user = userService.update(userId, request, profileRequest);
+        return  ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/{userId}")
@@ -78,5 +67,21 @@ public class UserController {
     public ResponseEntity<UserStatus> updateStutus(@PathVariable UUID userId, @RequestBody UserStatusUpdateRequest request){
         UserStatus userStatus = userStatusService.updateByUserId(userId, request);
         return ResponseEntity.ok(userStatus);
+    }
+
+    // 공통 파일 변환 메서드 (컨트롤러 내부에 선언)
+    private Optional<BinaryContentCreateRequest> convertToBinaryRequest(MultipartFile file) {
+        try {
+            if (file != null && !file.isEmpty()) {
+                return Optional.of(new BinaryContentCreateRequest(
+                        file.getOriginalFilename(),
+                        file.getContentType(),
+                        file.getBytes()
+                ));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("이미지 처리 중 오류가 발생했습니다.", e);
+        }
+        return Optional.empty();
     }
 }
