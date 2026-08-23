@@ -59,7 +59,7 @@ public class BasicUserService implements UserService {
         UserStatus userStatus = new UserStatus(createdUser.getId(), now);
         userStatusRepository.save(userStatus);
 
-        return createdUser;
+        return toDto(createdUser);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -113,7 +113,7 @@ public class BasicUserService implements UserService {
         String newPassword = userUpdateRequest.newPassword();
         user.update(newUsername, newEmail, newPassword, nullableProfileId);
 
-        return userRepository.save(user);
+        return toDto(userRepository.save(user));
     }
 
 

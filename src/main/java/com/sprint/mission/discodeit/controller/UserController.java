@@ -54,12 +54,12 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> update(@PathVariable UUID userId, @ModelAttribute UserUpdateRequest request,
+    public ResponseEntity<UserDto> update(@PathVariable UUID userId, @ModelAttribute UserUpdateRequest request,
             @RequestParam(value = "profileImage", required = false) MultipartFile profileImage){
 
         Optional<BinaryContentCreateRequest> profileRequest = convertToBinaryRequest(profileImage);
-        User user = userService.update(userId, request, profileRequest);
-        return  ResponseEntity.ok(user);
+        UserDto userDto = userService.update(userId, request, profileRequest);
+        return  ResponseEntity.ok(userDto);
     }
 
     @DeleteMapping("/{userId}")
