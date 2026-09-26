@@ -18,3 +18,9 @@ logging:
   level:
     org.hibernate.SQL: debug # 실행되는 실제 SQL 쿼리를 로그로 출력합니다.
     org.hibernate.orm.jdbc.bind: trace # SQL에 바인딩되는 ? 파라미터 값을 함께 출력합니다.
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ./uploads  # 프로젝트 폴더 안의 'uploads' 폴더에 파일들을 저장하겠다는 뜻
