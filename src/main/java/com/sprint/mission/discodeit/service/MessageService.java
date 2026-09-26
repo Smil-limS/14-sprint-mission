@@ -39,7 +39,7 @@ public class MessageService {
     private final PageResponseMapper pageResponseMapper;
 
     @Transactional
-    public Message createMessage(UUID channelId, UUID authorId, String content,
+    public MessageDto createMessage(UUID channelId, UUID authorId, String content,
         List<BinaryContentUploadRequest> attachmentRequests) {
         Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
@@ -62,15 +62,17 @@ public class MessageService {
             }
         }
 
-        return messageRepository.save(message);
+        Message savedMessage = messageRepository.save(message);
+        return messageMapper.toDto(savedMessage);
     }
 
     @Transactional
-    public void updateMessageContent(UUID messageId, String newContent) {
+    public MessageDto updateMessageContent(UUID messageId, String newContent) {
         Message message = messageRepository.findById(messageId)
             .orElseThrow(() -> new IllegalArgumentException("메세지를 찾을 수 없습니다."));
 
         message.updateContent(newContent);
+        return messageMapper.toDto(message);
     }
 
     public PageResponse<MessageDto> getMessagesByChannel(UUID channelId, int page) {

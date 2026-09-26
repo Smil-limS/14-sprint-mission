@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.BinaryContentUploadRequest;
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
@@ -20,9 +22,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
+    private final UserMapper userMapper;
 
     @Transactional
-    public User createUser(String username, String email, String password,
+    public UserDto createUser(String username, String email, String password,
         BinaryContentUploadRequest profileRequest) {
         User user = User.create(username, email, password);
 
@@ -34,11 +37,12 @@ public class UserService {
         UserStatus userStatus = UserStatus.create(user);
         user.updateStatus(userStatus);
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return userMapper.toDto(savedUser);
     }
 
     @Transactional
-    public void updateUserInfo(UUID userId, String username, String email,
+    public UserDto updateUserInfo(UUID userId, String username, String email,
         BinaryContentUploadRequest profileRequest) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
@@ -48,6 +52,8 @@ public class UserService {
             newProfile = saveProfileImage(profileRequest);
         }
         user.update(username, email, newProfile);
+
+        return userMapper.toDto(user);
     }
 
     private BinaryContent saveProfileImage(BinaryContentUploadRequest request) {
@@ -60,7 +66,7 @@ public class UserService {
         binaryContentStorage.put(savedProfile.getId(), request.bytes());
         return savedProfile;
     }
-    
+
     @Transactional
     public void changePassword(UUID userId, String newPassword) {
         User user = userRepository.findById(userId)

@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -20,15 +22,17 @@ public class ReadStatusService {
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
+    private final ReadStatusMapper readStatusMapper;
 
     @Transactional
-    public void markAsRead(UUID userId, UUID channelId) {
+    public ReadStatusDto markAsRead(UUID userId, UUID channelId) {
         Optional<ReadStatus> optionalStatus = readStatusRepository.findByUserIdAndChannelId(userId,
             channelId);
 
         if (optionalStatus.isPresent()) {
             ReadStatus existingStatus = optionalStatus.get();
             existingStatus.updateLastReadAt();
+            return readStatusMapper.toDto(existingStatus);
         } else {
             User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
@@ -36,7 +40,8 @@ public class ReadStatusService {
                 .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
 
             ReadStatus readStatus = ReadStatus.create(user, channel);
-            readStatusRepository.save(readStatus);
+            ReadStatus savedStatus = readStatusRepository.save(readStatus);
+            return readStatusMapper.toDto(savedStatus);
         }
     }
 }
