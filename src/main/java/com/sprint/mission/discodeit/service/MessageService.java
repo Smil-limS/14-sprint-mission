@@ -1,10 +1,14 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.BinaryContentUploadRequest;
+import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -13,6 +17,10 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +34,9 @@ public class MessageService {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
+
+    private final MessageMapper messageMapper;
+    private final PageResponseMapper pageResponseMapper;
 
     @Transactional
     public Message createMessage(UUID channelId, UUID authorId, String content,
@@ -62,7 +73,10 @@ public class MessageService {
         message.updateContent(newContent);
     }
 
-    public List<Message> getMessagesByChannel(UUID channelId) {
-        return messageRepository.findByChannelId(channelId);
+    public PageResponse<MessageDto> getMessagesByChannel(UUID channelId, int page) {
+        Pageable pageable = PageRequest.of(page, 50, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Slice<Message> messageSlice = messageRepository.findAllByChannelId(channelId, pageable);
+        Slice<MessageDto> messageDtoSlice = messageSlice.map(messageMapper::toDto);
+        return pageResponseMapper.fromSlice(messageDtoSlice);
     }
 }
