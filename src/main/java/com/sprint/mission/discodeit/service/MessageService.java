@@ -1,12 +1,15 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.BinaryContentUploadRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +24,12 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Transactional
     public Message createMessage(UUID channelId, UUID authorId, String content,
-        List<BinaryContent> attachments) {
+        List<BinaryContentUploadRequest> attachmentRequests) {
         Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
         User user = userRepository.findById(authorId)
@@ -32,9 +37,17 @@ public class MessageService {
 
         Message message = Message.create(content, channel, user);
 
-        if (attachments != null && !attachments.isEmpty()) {
-            for (BinaryContent attachment : attachments) {
-                message.addAttachment(attachment);
+        if (attachmentRequests != null && !attachmentRequests.isEmpty()) {
+            for (BinaryContentUploadRequest request : attachmentRequests) {
+                BinaryContent attachment = BinaryContent.create(
+                    request.fileName(),
+                    request.size(),
+                    request.contentType()
+                );
+                BinaryContent savedAttachment = binaryContentRepository.save(attachment);
+                binaryContentStorage.put(savedAttachment.getId(), request.bytes());
+
+                message.addAttachment(savedAttachment);
             }
         }
 
@@ -49,7 +62,6 @@ public class MessageService {
         message.updateContent(newContent);
     }
 
-    @Transactional
     public List<Message> getMessagesByChannel(UUID channelId) {
         return messageRepository.findByChannelId(channelId);
     }
