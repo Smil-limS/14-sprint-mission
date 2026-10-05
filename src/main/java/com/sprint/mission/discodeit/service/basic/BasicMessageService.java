@@ -9,6 +9,8 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -56,8 +58,7 @@ public class BasicMessageService implements MessageService {
             .orElseThrow(
                 () -> {
                     log.warn("메시지 생성 실패 - 존재하지 않는 채널 ID: {}", channelId);
-                    return new NoSuchElementException(
-                        "Channel with id " + channelId + " does not exist");
+                    return new ChannelNotFoundException(channelId);
                 });
         User author = userRepository.findById(authorId)
             .orElseThrow(
@@ -102,7 +103,7 @@ public class BasicMessageService implements MessageService {
         return messageRepository.findById(messageId)
             .map(messageMapper::toDto)
             .orElseThrow(
-                () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+                () -> new MessageNotFoundException(messageId));
     }
 
     @Transactional(readOnly = true)
@@ -132,8 +133,7 @@ public class BasicMessageService implements MessageService {
             .orElseThrow(
                 () -> {
                     log.warn("메시지 수정 실패 - 존재하지 않는 메시지 ID: {}", messageId);
-                    return new NoSuchElementException(
-                        "Message with id " + messageId + " not found");
+                    return new MessageNotFoundException(messageId);
                 });
         message.update(newContent);
 
@@ -146,7 +146,7 @@ public class BasicMessageService implements MessageService {
     public void delete(UUID messageId) {
         if (!messageRepository.existsById(messageId)) {
             log.warn("메시지 삭제 실패 - 존재하지 않는 메시지 ID: {}", messageId);
-            throw new NoSuchElementException("Message with id " + messageId + " not found");
+            throw new MessageNotFoundException(messageId);
         }
 
         messageRepository.deleteById(messageId);
