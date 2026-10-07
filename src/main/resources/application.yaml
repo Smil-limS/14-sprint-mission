@@ -8,12 +8,39 @@ spring:
       maxFileSize: 10MB
       maxRequestSize: 30MB
 
-
 discodeit:
   storage:
     type: local
     local:
       root-path: .discodeit/storage
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Discodeit
+    version: 1.7.0
+    java-version: 17
+    spring-boot-version: 4.1.1
+  config:
+    datasource:
+      url: ${spring.datasource.url:jdbc:h2:mem:testdb}
+      driver-class-name: ${spring.datasource.driver-class-name:org.h2.Driver}
+    jpa:
+      ddl-auto: ${spring.jpa.hibernate.ddl-auto:update}
+    storage:
+      type: ${discodeit.storage.type:local}
+      path: ${discodeit.storage.local.root-path:./uploads}
+    multipart:
+      max-file-size: ${spring.servlet.multipart.max-file-size:10MB}
+      max-request-size: ${spring.servlet.multipart.max-request-size:10MB}
 
 
 logging:
