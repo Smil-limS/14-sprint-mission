@@ -1,6 +1,8 @@
 spring:
   application:
     name: discodeit
+  config:
+    import: optional:file:.env[.properties]
   servlet:
     multipart:
       maxFileSize: 10MB # 파일 하나의 최대 크기
@@ -46,9 +48,15 @@ info:
 
 discodeit:
   storage:
-    type: local
+    type: s3
     local:
-      root-path: .discodeit/storage
+      root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
+    s3:
+      access-key: ${AWS_S3_ACCESS_KEY}
+      secret-key: ${AWS_S3_SECRET_KEY}
+      region: ${AWS_S3_REGION}
+      bucket: ${AWS_S3_BUCKET}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
 
 logging:
   level:
