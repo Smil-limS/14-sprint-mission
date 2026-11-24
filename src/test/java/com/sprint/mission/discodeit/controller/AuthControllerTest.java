@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.sprint.mission.discodeit.config.SecurityConfig;
+import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -33,6 +34,9 @@ class AuthControllerTest {
     @MockitoBean
     private LoginFailureHandler loginFailureHandler;
 
+    @MockitoBean
+    private Http403ForbiddenAccessDeniedHandler accessDeniedHandler;
+    
     @Test
     @WithMockUser
     @DisplayName("CSRF 토큰 발급 성공 테스트")
