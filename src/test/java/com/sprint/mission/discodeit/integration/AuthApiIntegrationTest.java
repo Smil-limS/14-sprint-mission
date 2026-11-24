@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -39,13 +40,11 @@ class AuthApiIntegrationTest {
     @DisplayName("로그인 API 통합 테스트 - 성공")
     void login_Success() throws Exception {
         // Given
-        // 테스트 사용자 생성
         UserCreateRequest userRequest = new UserCreateRequest(
             "loginuser",
             "login@example.com",
             "Password1!"
         );
-
         userService.create(userRequest, Optional.empty());
 
         // When & Then
@@ -58,6 +57,40 @@ class AuthApiIntegrationTest {
             .andExpect(jsonPath("$.id", notNullValue()))
             .andExpect(jsonPath("$.username", is("loginuser")))
             .andExpect(jsonPath("$.email", is("login@example.com")));
+    }
+
+    @Test
+    @DisplayName("로그아웃 API 통합 테스트 - 성공")
+    void logout_Success() throws Exception {
+        // Given: 회원가입 후 로그인해서 유효한 세션 발급받기
+        UserCreateRequest userRequest = new UserCreateRequest(
+            "logoutuser",
+            "logout@example.com",
+            "Password1!"
+        );
+        userService.create(userRequest, Optional.empty());
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("username", "logoutuser")
+                .param("password", "Password1!"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
+
+        // When: 발급받은 세션 + CSRF 토큰으로 로그아웃 요청
+        mockMvc.perform(post("/api/auth/logout")
+                .with(csrf())
+                .session(session))
+            .andExpect(status().isNoContent()); // 204 확인
+
+        // Then: 서버 세션이 무효화되었고, 이후 /api/auth/me 호출 시 401 반환되는지 확인
+        assertThat(session.isInvalid()).isTrue();
+        mockMvc.perform(get("/api/auth/me")
+                .session(session))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test

@@ -4,3 +4,5 @@
 .idea/
 .logs/
 build/
+out/
+src/main/generated/
