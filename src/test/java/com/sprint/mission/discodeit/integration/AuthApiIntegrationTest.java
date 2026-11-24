@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.integration;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,8 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -101,5 +104,35 @@ class AuthApiIntegrationTest {
                 .param("password", ""))
             .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.status", is(401)));
+    }
+
+    @Test
+    @DisplayName("현재 사용자 정보 조회 통합 테스트 - 성공 (세션 유지)")
+    void me_Success() throws Exception {
+        // Given: 회원가입 후 formLogin으로 로그인하여 세션 발급받기
+        UserCreateRequest userRequest = new UserCreateRequest(
+            "meuser",
+            "me@example.com",
+            "Password1!"
+        );
+        userService.create(userRequest, Optional.empty());
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("username", "meuser")
+                .param("password", "Password1!"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
+
+        // When & Then: 그 세션을 그대로 들고 GET /api/auth/me 호출 시 200 + UserDto 응답 확인
+        mockMvc.perform(get("/api/auth/me")
+                .session(session))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", notNullValue()))
+            .andExpect(jsonPath("$.username", is("meuser")))
+            .andExpect(jsonPath("$.email", is("me@example.com")));
     }
 } 
